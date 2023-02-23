@@ -27,7 +27,7 @@ struct lunarcal_cache {  /* the item in cache */
 };
 
 /* Function prototypes */
-void cn_lunarcal(int year);
+void cn_lunarcal(int year, int solarOnly);
 
 int get_cached_lc(struct lunarcal *lcs[], int len, int year);
 
@@ -45,7 +45,7 @@ void mark_holiday(struct lunarcal *lcs[], int len);
 
 struct lunarcal *lcalloc(double jd);
 
-void print_lunarcal(struct lunarcal *lcs[], int len);
+void print_lunarcal(struct lunarcal *lcs[], int len, int solarOnly);
 
 int get_cache_index(int year);
 

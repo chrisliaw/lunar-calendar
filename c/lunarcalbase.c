@@ -96,7 +96,7 @@ void init_cache(void)
 }
 
 
-void cn_lunarcal(int year)
+void cn_lunarcal(int year, int solarOnly)
 {
     int i, k, len1, len2;
     double ystart, yend;
@@ -133,7 +133,7 @@ void cn_lunarcal(int year)
     for (i = 0; k < MAX_DAYS && i < len2 && nextyear[i]->jd <= yend; k++, i++)
         output[k] = nextyear[i];
 
-    print_lunarcal(output, k);
+    print_lunarcal(output, k, solarOnly);
 }
 
 
@@ -445,7 +445,7 @@ void ganzhi(char *buf, size_t buflen, int lyear)
 }
 
 
-void print_lunarcal(struct lunarcal *lcs[], int len)
+void print_lunarcal(struct lunarcal *lcs[], int len, int solarOnly)
 {
     int i;
     char isodate[BUFSIZE], dtstart[BUFSIZE], dtend[BUFSIZE];
@@ -479,9 +479,15 @@ void print_lunarcal(struct lunarcal *lcs[], int len)
             if (lc->is_lm)
                 strcat(summary, "閏");
 
-            //strcat(summary, CN_MON[lc->month]);
+            if (solarOnly == 0)
+            {
+              strcat(summary, CN_MON[lc->month]);
+            }
         } else {
-            //sprintf(summary, "%s", CN_DAY[lc->day]);
+          if (solarOnly == 0)
+          {
+            sprintf(summary, "%s", CN_DAY[lc->day]);
+          }
         }
 
         if (lc->solarterm != -1) {
@@ -502,7 +508,22 @@ void print_lunarcal(struct lunarcal *lcs[], int len)
           holiday = 0;
         }
 
-        if (solarTerm == 1 || holiday == 1)
+        if(solarOnly == 1)
+        {
+          if (solarTerm == 1 || holiday == 1)
+          {
+            printf("BEGIN:VEVENT\n"
+                "DTSTAMP:%s\n"
+                "UID:%s-lc@infinet.github.io\n"
+                "DTSTART;VALUE=DATE:%s\n"
+                "DTEND;VALUE=DATE:%s\n"
+                "STATUS:CONFIRMED\n"
+                "SUMMARY:%s\n"
+                "END:VEVENT\n", utcstamp, isodate, dtstart, dtend, summary);
+          }
+
+        }
+        else
         {
           printf("BEGIN:VEVENT\n"
               "DTSTAMP:%s\n"
@@ -512,6 +533,7 @@ void print_lunarcal(struct lunarcal *lcs[], int len)
               "STATUS:CONFIRMED\n"
               "SUMMARY:%s\n"
               "END:VEVENT\n", utcstamp, isodate, dtstart, dtend, summary);
+
         }
      }
 }
