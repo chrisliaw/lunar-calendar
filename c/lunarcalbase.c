@@ -454,6 +454,10 @@ void print_lunarcal(struct lunarcal *lcs[], int len)
     struct tm *utc_time;
     time_t t = time(NULL);
 
+    // Chris added
+    int solarTerm;
+    int holiday;
+
     utc_time = gmtime(&t);
     memset(utcstamp, 0, BUFSIZE);
     sprintf(utcstamp, "%04d%02d%02dT%02d%02d%02dZ",
@@ -465,6 +469,9 @@ void print_lunarcal(struct lunarcal *lcs[], int len)
         jdftime(isodate, lc->jd, "%y-%m-%d", 0, 0);
         jdftime(dtstart, lc->jd, "%y%m%d", 0, 0);
         jdftime(dtend, lc->jd, "%y%m%d", 24, 0);
+        
+        solarTerm = 1;
+        holiday = 1;
 
         memset(summary, 0, BUFSIZE);
         if (lc->day == 1) {
@@ -472,28 +479,39 @@ void print_lunarcal(struct lunarcal *lcs[], int len)
             if (lc->is_lm)
                 strcat(summary, "閏");
 
-            strcat(summary, CN_MON[lc->month]);
+            //strcat(summary, CN_MON[lc->month]);
         } else {
-            sprintf(summary, "%s", CN_DAY[lc->day]);
+            //sprintf(summary, "%s", CN_DAY[lc->day]);
         }
 
         if (lc->solarterm != -1) {
             strcat(summary, " ");
             strcat(summary, CN_SOLARTERM[lc->solarterm]);
         }
+        else
+        {
+          solarTerm = 0;
+        }
 
         if (lc->holiday != -1) {
             strcat(summary, " ");
             strcat(summary, CN_HOLIDAY[lc->holiday]);
         }
+        else
+        {
+          holiday = 0;
+        }
 
-        printf("BEGIN:VEVENT\n"
-               "DTSTAMP:%s\n"
-               "UID:%s-lc@infinet.github.io\n"
-               "DTSTART;VALUE=DATE:%s\n"
-               "DTEND;VALUE=DATE:%s\n"
-               "STATUS:CONFIRMED\n"
-               "SUMMARY:%s\n"
-               "END:VEVENT\n", utcstamp, isodate, dtstart, dtend, summary);
+        if (solarTerm == 1 || holiday == 1)
+        {
+          printf("BEGIN:VEVENT\n"
+              "DTSTAMP:%s\n"
+              "UID:%s-lc@infinet.github.io\n"
+              "DTSTART;VALUE=DATE:%s\n"
+              "DTEND;VALUE=DATE:%s\n"
+              "STATUS:CONFIRMED\n"
+              "SUMMARY:%s\n"
+              "END:VEVENT\n", utcstamp, isodate, dtstart, dtend, summary);
+        }
      }
 }
